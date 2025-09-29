@@ -46,7 +46,7 @@ public class CustomUserPrincipal implements UserDetails {
                 user.getUsername(),
                 user.getPassword(),
                 authorization,
-                user.isActive()
+                user.getIsActive()
         );
     }
 
