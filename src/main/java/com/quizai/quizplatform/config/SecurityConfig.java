@@ -46,6 +46,7 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/login").permitAll()
+                        .requestMatchers("/api/users/create").permitAll()
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider(passwordEncoder()))
