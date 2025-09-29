@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.quizai.quizplatform.core.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +37,8 @@ public class User extends AbstractEntity {
     private UserRole role;
 
     @Column(name = "is_active", nullable = false)
-    private boolean isActive = true;
+    @ColumnDefault("true") //Ensures DB default value = true if not explicitly set during insert
+    private Boolean isActive = true;
 
     @Column(name = "public_id", nullable = false, unique = true, updatable = false, length = 36)
     private String publicId;
