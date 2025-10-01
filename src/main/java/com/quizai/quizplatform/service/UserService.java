@@ -69,30 +69,42 @@ public class UserService {
 
     @Transactional
     public UpdateOutcome<UserReadOnlyDTO> updateUser(String publicId, UserUpdateDTO dto) {
+        log.info("Attempting to update user with publicId: {}", publicId);
+
         User user = userRepository.findByPublicId(publicId)
                 .orElseThrow(() -> new AppObjectNotFoundException("USER_", "User not found"));
 
         boolean dirty = false;
+        StringBuilder changes = new StringBuilder();
 
         if (dto.getUsername() != null && !dto.getUsername().equals(user.getUsername())) {
             if (userRepository.existsByUsername(dto.getUsername())) {
+                log.warn("Username {} already exists for publicId: {}", dto.getUsername(), publicId);
                 throw new AppObjectAlreadyExistsException("USER_", "Username already exists");
             }
             user.setUsername(dto.getUsername());
             dirty = true;
+            changes.append("username to ").append(dto.getUsername()).append(", ");
         }
+
         if (dto.getRole() != null && dto.getRole() != user.getRole()) {
             user.setRole(dto.getRole());
             dirty = true;
+            changes.append("role to ").append(dto.getRole()).append(", ");
         }
+
         if (dto.getPassword() != null) {
             if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
                 user.setPassword(passwordEncoder.encode(dto.getPassword()));
                 dirty = true;
+                changes.append("password, ");
             }
         }
 
+        userMapper.updateUserFromDTO(dto, user);
+
         if (!dirty) {
+            log.info("No changes made for user with publicId: {}", publicId);
             return UpdateOutcome.noChange(userMapper.toUserReadOnly(user));
         }
 
@@ -101,7 +113,7 @@ public class UserService {
         UserReadOnlyDTO updatedDto = userMapper.toUserReadOnly(saved);
         userProfileCache.put(saved.getPublicId(), updatedDto);
         log.info("Invalidated userDetailsCache and updated userProfileCache for publicId: {}", saved.getPublicId());
-        log.info("User updated successfully for publicId: {}", saved.getPublicId());
+        log.info("User updated successfully for publicId: {} with changes: {}", saved.getPublicId(), changes.toString());
 
         return UpdateOutcome.changed(updatedDto);
     }
