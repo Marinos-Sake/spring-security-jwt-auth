@@ -21,14 +21,14 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
 
-        return CustomUserPrincipal.from(user);
+        return CustomUserPrincipal.fromForLogin(user);
     }
 
     public UserDetails loadUserByPublicId(String publicId) throws UsernameNotFoundException {
         return userDetailsCache.get(publicId, id -> {
             User user = userRepository.findByPublicId(id)
                     .orElseThrow(() -> new UsernameNotFoundException("User not found: " + id));
-            return CustomUserPrincipal.from(user);
+            return CustomUserPrincipal.fromForJwt(user);
         });
     }
 }
