@@ -2,15 +2,14 @@ package com.quizai.quizplatform.rest;
 
 import com.quizai.quizplatform.dto.UserInsertDTO;
 import com.quizai.quizplatform.dto.UserReadOnlyDTO;
+import com.quizai.quizplatform.dto.UserUpdateDTO;
 import com.quizai.quizplatform.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/users")
@@ -25,5 +24,29 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<UserReadOnlyDTO> getMyProfile(
+            @AuthenticationPrincipal(expression = "publicId") String publicId
+    ) {
+        return ResponseEntity.ok(userService.getMyProfileByPublicId(publicId));
+    }
+
+    @PatchMapping("/me")
+    public ResponseEntity<?> updateMe(
+            @AuthenticationPrincipal(expression = "publicId") String publicId,
+            @Valid @RequestBody UserUpdateDTO dto
+    ) {
+        var out = userService.updateUser(publicId, dto);
+        return out.changed()
+                ? ResponseEntity.ok(out.body())
+                : ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> deleteMe(
+            @AuthenticationPrincipal(expression = "publicId") String publicId) {
+        userService.deleteMyAccount(publicId);
+        return ResponseEntity.noContent().build();
+    }
 
 }
