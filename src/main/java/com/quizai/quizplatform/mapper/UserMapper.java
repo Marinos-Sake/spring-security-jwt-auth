@@ -2,6 +2,7 @@ package com.quizai.quizplatform.mapper;
 
 import com.quizai.quizplatform.dto.UserInsertDTO;
 import com.quizai.quizplatform.dto.UserReadOnlyDTO;
+import com.quizai.quizplatform.dto.UserUpdateDTO;
 import com.quizai.quizplatform.entity.User;
 import org.springframework.stereotype.Component;
 
@@ -32,5 +33,17 @@ public class UserMapper {
         dto.setRole(user.getRole());
 
         return dto;
+    }
+
+    public void updateUserFromDTO(UserUpdateDTO dto, User user) {
+        if (dto == null || user == null) {
+            return;
+        }
+        if (dto.getUsername() != null) {
+            user.setUsername(dto.getUsername());
+        }
+        if (dto.getRole() != null) {
+            user.setRole(dto.getRole());
+        }
     }
 }
