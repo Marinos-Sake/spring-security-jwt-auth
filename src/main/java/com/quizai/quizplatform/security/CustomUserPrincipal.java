@@ -1,6 +1,7 @@
 package com.quizai.quizplatform.security;
 
 import com.quizai.quizplatform.core.enums.UserRole;
+import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -9,12 +10,12 @@ import com.quizai.quizplatform.entity.User;
 import java.util.Collection;
 import java.util.List;
 
-public class CustomUserPrincipal implements UserDetails {
+public class CustomUserPrincipal implements UserDetails, CredentialsContainer {
 
     private final Long id;
     private final String username;
     private final String publicId;
-    private final String password;
+    private String password;
     private final Collection<? extends GrantedAuthority> authorities;
     private final boolean enabled;
 
@@ -32,22 +33,45 @@ public class CustomUserPrincipal implements UserDetails {
         this.enabled = enabled;
     }
 
-    /** Mapping: Entity User -> Principal */
-    public static CustomUserPrincipal from(User user) {
-        UserRole role = user.getRole();
+    /**
+     * Factory used only during username/password login.
+     * We must include the encoded password here so that the DaoAuthenticationProvider
+     * can verify credentials using PasswordEncoder.matches(...).
+     * After successful authentication, Spring automatically calls eraseCredentials()
+     * so the password is nulled and not kept in memory longer than necessary.
+     */
 
-        List<GrantedAuthority> authorization = List.of(
-                new SimpleGrantedAuthority("ROLE_" + role.name())
-        );
-
+    public static CustomUserPrincipal fromForLogin(User user) {
         return new CustomUserPrincipal(
                 user.getId(),
                 user.getPublicId(),
                 user.getUsername(),
                 user.getPassword(),
-                authorization,
+                buildAuthorities(user.getRole()),
                 user.getIsActive()
         );
+    }
+
+    /**
+     * Factory used when building a principal from a JWT (publicId lookup).
+     * No password is required in this flow because authentication has already
+     * been verified when the token was issued.
+     * Keeping the password here would be unnecessary and would expose sensitive data
+     * in memory for no reason, so we always set it to null.
+     */
+    public static CustomUserPrincipal fromForJwt(User user) {
+        return new CustomUserPrincipal(
+                user.getId(),
+                user.getPublicId(),
+                user.getUsername(),
+                null,
+                buildAuthorities(user.getRole()),
+                user.getIsActive()
+        );
+
+    }
+    private static List<GrantedAuthority> buildAuthorities(UserRole role) {
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 
     public Long getId() {
@@ -93,5 +117,9 @@ public class CustomUserPrincipal implements UserDetails {
         return true;
     }
 
+    @Override
+    public void eraseCredentials() {
+        this.password = null;
+    }
 
 }
