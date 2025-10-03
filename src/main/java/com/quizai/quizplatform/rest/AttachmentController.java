@@ -1,0 +1,49 @@
+package com.quizai.quizplatform.rest;
+
+
+
+import com.quizai.quizplatform.dto.AttachmentReadOnlyDTO;
+import com.quizai.quizplatform.service.AttachmentService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/attachment")
+@RequiredArgsConstructor
+public class AttachmentController {
+
+    private final AttachmentService attachmentService;
+
+    @PostMapping("/upload")
+    public ResponseEntity<AttachmentReadOnlyDTO> upload(
+            @AuthenticationPrincipal(expression = "publicId") String publicId,
+            @RequestParam("file") MultipartFile file
+    ) {
+        AttachmentReadOnlyDTO dto = attachmentService.upload(publicId, file);
+        return ResponseEntity.status(HttpStatus.CREATED).body(dto);
+    }
+
+    @GetMapping("/my")
+    public ResponseEntity<List<AttachmentReadOnlyDTO>> getMyAttachments(
+            @AuthenticationPrincipal(expression = "publicId") String publicId
+    ) {
+        return ResponseEntity.ok(attachmentService.getMyAttachments(publicId));
+    }
+
+    @DeleteMapping("/{attachmentId}")
+    public ResponseEntity<Void> delete(
+            @AuthenticationPrincipal(expression = "publicId") String publicId,
+            @PathVariable("attachmentId") Long attachmentId
+    ) {
+        attachmentService.delete(publicId, attachmentId);
+        return ResponseEntity.noContent().build();
+    }
+
+
+}
