@@ -38,3 +38,9 @@ out/
 
 # Application config
 src/main/resources/application.properties
+
+# PDF
+uploads
+
+# AI
+ollama
