@@ -1,8 +1,8 @@
-package com.jwt.safe.rest;
+package io.github.marinossake.rest;
 
-import com.jwt.safe.dto.LoginRequestDTO;
-import com.jwt.safe.dto.LoginResponseDTO;
-import com.jwt.safe.service.AuthenticationService;
+import io.github.marinossake.dto.LoginRequestDTO;
+import io.github.marinossake.dto.LoginResponseDTO;
+import io.github.marinossake.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,13 +16,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 @Slf4j
-public class AuthenticationController {
+public class AuthController {
 
-    private final AuthenticationService authenticationService;
+    private final AuthService authService;
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO request) {
         log.info("Login attempt for username: {}", request.getUsername());
-        return ResponseEntity.ok(authenticationService.login(request));
+        return ResponseEntity.ok(authService.login(request));
     }
 }

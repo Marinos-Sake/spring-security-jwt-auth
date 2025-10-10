@@ -1,7 +1,7 @@
-package com.jwt.safe.mapper;
+package io.github.marinossake.mapper;
 
-import com.jwt.safe.dto.AttachmentReadOnlyDTO;
-import com.jwt.safe.entity.Attachment;
+import io.github.marinossake.dto.AttachmentReadOnlyDTO;
+import io.github.marinossake.entity.Attachment;
 import org.springframework.stereotype.Component;
 
 @Component

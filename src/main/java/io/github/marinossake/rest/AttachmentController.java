@@ -1,9 +1,9 @@
-package com.jwt.safe.rest;
+package io.github.marinossake.rest;
 
 
 
-import com.jwt.safe.dto.AttachmentReadOnlyDTO;
-import com.jwt.safe.service.AttachmentService;
+import io.github.marinossake.dto.AttachmentReadOnlyDTO;
+import io.github.marinossake.service.AttachmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

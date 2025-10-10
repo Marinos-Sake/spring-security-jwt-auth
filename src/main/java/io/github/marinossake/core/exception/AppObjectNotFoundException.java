@@ -1,4 +1,4 @@
-package com.jwt.safe.core.exception;
+package io.github.marinossake.core.exception;
 
 public class AppObjectNotFoundException extends AppGenericException {
 

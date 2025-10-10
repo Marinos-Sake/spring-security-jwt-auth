@@ -1,13 +1,13 @@
-package com.jwt.safe.service;
+package io.github.marinossake.service;
 
-import com.jwt.safe.core.exception.AppObjectNotFoundException;
-import com.jwt.safe.core.exception.AppObjectValidationException;
-import com.jwt.safe.dto.AttachmentReadOnlyDTO;
-import com.jwt.safe.entity.Attachment;
-import com.jwt.safe.entity.User;
-import com.jwt.safe.mapper.AttachmentMapper;
-import com.jwt.safe.repository.AttachmentRepository;
-import com.jwt.safe.repository.UserRepository;
+import io.github.marinossake.core.exception.AppObjectNotFoundException;
+import io.github.marinossake.core.exception.AppObjectValidationException;
+import io.github.marinossake.dto.AttachmentReadOnlyDTO;
+import io.github.marinossake.entity.Attachment;
+import io.github.marinossake.entity.User;
+import io.github.marinossake.mapper.AttachmentMapper;
+import io.github.marinossake.repository.AttachmentRepository;
+import io.github.marinossake.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

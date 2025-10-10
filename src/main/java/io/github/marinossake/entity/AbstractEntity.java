@@ -1,4 +1,4 @@
-package com.jwt.safe.entity;
+package io.github.marinossake.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;

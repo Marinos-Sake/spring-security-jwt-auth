@@ -1,4 +1,4 @@
-package com.jwt.safe.dto;
+package io.github.marinossake.dto;
 
 
 import lombok.Getter;
