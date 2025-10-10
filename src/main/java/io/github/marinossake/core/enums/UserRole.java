@@ -1,4 +1,4 @@
-package com.jwt.safe.core.enums;
+package io.github.marinossake.core.enums;
 
 public enum UserRole {
 

@@ -1,6 +1,6 @@
-package com.jwt.safe.repository;
+package io.github.marinossake.repository;
 
-import com.jwt.safe.entity.User;
+import io.github.marinossake.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

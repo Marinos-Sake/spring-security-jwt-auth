@@ -1,6 +1,6 @@
-package com.jwt.safe.dto;
+package io.github.marinossake.dto;
 
-import com.jwt.safe.core.enums.UserRole;
+import io.github.marinossake.core.enums.UserRole;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

@@ -1,8 +1,8 @@
-package com.jwt.safe.entity;
+package io.github.marinossake.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.jwt.safe.core.enums.UserRole;
+import io.github.marinossake.core.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;

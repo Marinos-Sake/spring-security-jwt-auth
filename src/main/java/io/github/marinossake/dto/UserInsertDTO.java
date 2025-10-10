@@ -1,9 +1,8 @@
-package com.jwt.safe.dto;
+package io.github.marinossake.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.jwt.safe.core.enums.UserRole;
+import io.github.marinossake.core.enums.UserRole;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -23,13 +22,12 @@ public class UserInsertDTO {
     )
     private String username;
 
-    @NotBlank(message = "Username is required")
+    @NotBlank(message = "Password is required")
     @Size(min = 5, max = 20, message = "Password must be 5-20 characters")
     @Pattern(regexp = "^\\S+$", message = "Password must not contain spaces")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY) // protects in case someone accidentally returns this DTO instead of a ReadOnlyDTO
     private String password;
 
-    @NotNull(message = "Role is required")
     private UserRole role = UserRole.USER;
 
 }

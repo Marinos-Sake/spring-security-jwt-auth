@@ -1,4 +1,4 @@
-package com.jwt.safe.security;
+package io.github.marinossake.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
