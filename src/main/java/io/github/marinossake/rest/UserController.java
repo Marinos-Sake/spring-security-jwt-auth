@@ -1,9 +1,9 @@
-package com.jwt.safe.rest;
+package io.github.marinossake.rest;
 
-import com.jwt.safe.dto.UserInsertDTO;
-import com.jwt.safe.dto.UserReadOnlyDTO;
-import com.jwt.safe.dto.UserUpdateDTO;
-import com.jwt.safe.service.UserService;
+import io.github.marinossake.dto.UserInsertDTO;
+import io.github.marinossake.dto.UserReadOnlyDTO;
+import io.github.marinossake.dto.UserUpdateDTO;
+import io.github.marinossake.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
