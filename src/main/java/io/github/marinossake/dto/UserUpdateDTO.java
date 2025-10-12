@@ -1,7 +1,5 @@
-// UserUpdateDTO.java
-package com.jwt.safe.dto;
+package io.github.marinossake.dto;
 
-import com.jwt.safe.core.enums.UserRole;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -19,5 +17,4 @@ public class UserUpdateDTO {
     @Pattern(regexp = "^\\S+$", message = "Password must not contain spaces")
     private String password;
 
-    private UserRole role;
 }
