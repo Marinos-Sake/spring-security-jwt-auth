@@ -1,17 +1,16 @@
-package com.jwt.safe.service;
+package io.github.marinossake.service;
 
 import com.github.benmanes.caffeine.cache.Cache;
-import com.jwt.safe.core.exception.AppObjectAlreadyExistsException;
-import com.jwt.safe.core.exception.AppObjectNotFoundException;
-import com.jwt.safe.dto.UserInsertDTO;
-import com.jwt.safe.dto.UserReadOnlyDTO;
-import com.jwt.safe.dto.UserUpdateDTO;
-import com.jwt.safe.entity.User;
-import com.jwt.safe.mapper.UserMapper;
-import com.jwt.safe.repository.UserRepository;
+import io.github.marinossake.core.exception.AppObjectAlreadyExistsException;
+import io.github.marinossake.core.exception.AppObjectNotFoundException;
+import io.github.marinossake.dto.UserInsertDTO;
+import io.github.marinossake.dto.UserReadOnlyDTO;
+import io.github.marinossake.dto.UserUpdateDTO;
+import io.github.marinossake.entity.User;
+import io.github.marinossake.mapper.UserMapper;
+import io.github.marinossake.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +23,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
-    private final Cache<String, UserDetails> userDetailsCache;
     private final Cache<String, UserReadOnlyDTO> userProfileCache;
 
     @Transactional
@@ -69,61 +67,54 @@ public class UserService {
 
     @Transactional
     public UpdateOutcome<UserReadOnlyDTO> updateUser(String publicId, UserUpdateDTO dto) {
-        log.info("Attempting to update user with publicId: {}", publicId);
-
         User user = userRepository.findByPublicId(publicId)
                 .orElseThrow(() -> new AppObjectNotFoundException("USER_", "User not found"));
 
         boolean dirty = false;
         StringBuilder changes = new StringBuilder();
 
-        if (dto.getUsername() != null && !dto.getUsername().equals(user.getUsername())) {
-            if (userRepository.existsByUsername(dto.getUsername())) {
-                log.warn("Username {} already exists for publicId: {}", dto.getUsername(), publicId);
-                throw new AppObjectAlreadyExistsException("USER_", "Username already exists");
+
+        if (dto.getUsername() != null) {
+            String newU = dto.getUsername().trim();
+            if (!newU.equals(user.getUsername())) {
+                if (userRepository.existsByUsername(newU))
+                    throw new AppObjectAlreadyExistsException("USER_", "Username already exists");
+                dto.setUsername(newU);
+                dirty = true;
+                changes.append("username to ").append(newU).append(", ");
+            } else {
+                dto.setUsername(null);
             }
-            user.setUsername(dto.getUsername());
-            dirty = true;
-            changes.append("username to ").append(dto.getUsername()).append(", ");
         }
 
-        if (dto.getRole() != null && dto.getRole() != user.getRole()) {
-            user.setRole(dto.getRole());
-            dirty = true;
-            changes.append("role to ").append(dto.getRole()).append(", ");
-        }
-
-        if (dto.getPassword() != null) {
+        // password rules
+        String encodedPwd = null;
+        if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
             if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
-                user.setPassword(passwordEncoder.encode(dto.getPassword()));
+                encodedPwd = passwordEncoder.encode(dto.getPassword());
                 dirty = true;
                 changes.append("password, ");
             }
         }
 
-        userMapper.updateUserFromDTO(dto, user);
+        if (!dirty) return UpdateOutcome.noChange(userMapper.toUserReadOnly(user));
 
-        if (!dirty) {
-            log.info("No changes made for user with publicId: {}", publicId);
-            return UpdateOutcome.noChange(userMapper.toUserReadOnly(user));
-        }
+
+        userMapper.applyUserUpdate(dto, user, encodedPwd);
 
         User saved = userRepository.save(user);
-        userDetailsCache.invalidate(saved.getPublicId());
-        UserReadOnlyDTO updatedDto = userMapper.toUserReadOnly(saved);
-        userProfileCache.put(saved.getPublicId(), updatedDto);
-        log.info("Invalidated userDetailsCache and updated userProfileCache for publicId: {}", saved.getPublicId());
-        log.info("User updated successfully for publicId: {} with changes: {}", saved.getPublicId(), changes.toString());
-
-        return UpdateOutcome.changed(updatedDto);
+        UserReadOnlyDTO out = userMapper.toUserReadOnly(saved);
+        userProfileCache.put(saved.getPublicId(), out);
+        log.info("User updated for publicId: {} with changes: {}", saved.getPublicId(), changes);
+        return UpdateOutcome.changed(out);
     }
+
 
     @Transactional
     public void deleteMyAccount(String publicId) {
         User user = userRepository.findByPublicId(publicId)
                 .orElseThrow(() -> new AppObjectNotFoundException("USER_", "User not found"));
         userRepository.delete(user);
-        userDetailsCache.invalidate(publicId);
         userProfileCache.invalidate(publicId);
         log.info("User deleted and caches invalidated for publicId: {}", publicId);
     }
