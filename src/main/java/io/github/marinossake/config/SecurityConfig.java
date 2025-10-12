@@ -1,14 +1,15 @@
-package com.jwt.safe.config;
+package io.github.marinossake.config;
 
-import com.jwt.safe.security.CustomAccessDeniedHandler;
-import com.jwt.safe.security.CustomAuthenticationEntryPoint;
-import com.jwt.safe.security.JwtAuthenticationFilter;
+import io.github.marinossake.security.CustomAccessDeniedHandler;
+import io.github.marinossake.security.CustomAuthenticationEntryPoint;
+import io.github.marinossake.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,6 +19,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @RequiredArgsConstructor
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -25,6 +27,7 @@ public class SecurityConfig {
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
+    /** Password hashing strategy (BCrypt). */
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -46,10 +49,12 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                // REST + JWT → no CSRF tokens
                 .csrf(csrf -> csrf.disable())
+
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/login", "/error").permitAll()
+                        .requestMatchers("/auth/login").permitAll()
                         .requestMatchers("/api/users/create").permitAll()
                         .anyRequest().authenticated()
                 )
