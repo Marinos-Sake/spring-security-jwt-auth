@@ -1,9 +1,9 @@
-package com.jwt.safe.mapper;
+package io.github.marinossake.mapper;
 
-import com.jwt.safe.dto.UserInsertDTO;
-import com.jwt.safe.dto.UserReadOnlyDTO;
-import com.jwt.safe.dto.UserUpdateDTO;
-import com.jwt.safe.entity.User;
+import io.github.marinossake.dto.UserInsertDTO;
+import io.github.marinossake.dto.UserReadOnlyDTO;
+import io.github.marinossake.dto.UserUpdateDTO;
+import io.github.marinossake.entity.User;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -35,15 +35,9 @@ public class UserMapper {
         return dto;
     }
 
-    public void updateUserFromDTO(UserUpdateDTO dto, User user) {
-        if (dto == null || user == null) {
-            return;
-        }
-        if (dto.getUsername() != null) {
-            user.setUsername(dto.getUsername());
-        }
-        if (dto.getRole() != null) {
-            user.setRole(dto.getRole());
-        }
+    public void applyUserUpdate(UserUpdateDTO dto, User user, String encodedPasswordOrNull) {
+        if (dto == null || user == null) return;
+        if (dto.getUsername() != null) user.setUsername(dto.getUsername()); // ήδη trimmed/validated από service
+        if (encodedPasswordOrNull != null) user.setPassword(encodedPasswordOrNull);
     }
 }
