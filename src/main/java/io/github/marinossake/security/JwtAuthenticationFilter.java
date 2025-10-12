@@ -26,6 +26,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
+        // Read Authorization header and short-circuit if not Bearer
         String authHeader = request.getHeader("Authorization");
         if (!StringUtils.hasText(authHeader) || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
@@ -34,26 +35,33 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = authHeader.substring(7);
 
+        // Parse token once; skip if invalid/expired or context already set
         var maybeClaims = jwtUtil.tryParse(token);
         if (maybeClaims.isEmpty() || SecurityContextHolder.getContext().getAuthentication() != null) {
             filterChain.doFilter(request, response);
             return;
         }
 
+
         var claims = maybeClaims.get();
 
-        String publicId = claims.getSubject();                     // sub
-        request.setAttribute("publicId", publicId);                // διαθέσιμο σε controllers
+        // Subject = public identifier of the user
+        String publicId = claims.getSubject();
 
-        Object rc = claims.get("roles");                           // ["ADMIN","USER"]
-        List<String> roles = (rc instanceof List<?> l)
-                ? l.stream().map(String.class::cast).toList()
+        // Expose publicId to downstream handlers if needed (non-sensitive)
+        request.setAttribute("publicId", publicId);
+
+        Object rolesClaim = claims.get("roles");
+        List<String> roles = (rolesClaim instanceof List<?> rolesList)
+                ? rolesList.stream().map(String.class::cast).toList()
                 : List.of();
 
-        String username = claims.get("username", String.class);    // από JwtUtil
+        String username = claims.get("username", String.class);
 
+        // Build minimal principal from claims (no entity, no password)
         var principal = CustomUserPrincipal.fromClaims(publicId, username, roles);
 
+        // Create an authenticated token with authorities from principal
         var authentication = new UsernamePasswordAuthenticationToken(
                 principal,
                 null,
