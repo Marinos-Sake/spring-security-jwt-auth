@@ -1,12 +1,11 @@
-package com.jwt.safe.core.exception;
+package io.github.marinossake.core.exception;
 
-import com.jwt.safe.dto.ResponseMessageDTO;
+import io.github.marinossake.dto.ResponseMessageDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -53,12 +52,6 @@ public class ErrorHandler {
                 ex.getMessage()
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-    }
-
-    @ExceptionHandler(MaxUploadSizeExceededException.class)
-    ResponseEntity<Map<String,String>> handle(MaxUploadSizeExceededException e){
-        return ResponseEntity.status(413)
-                .body(Map.of("code","FILE_TOO_LARGE","message","Max 20MB"));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
