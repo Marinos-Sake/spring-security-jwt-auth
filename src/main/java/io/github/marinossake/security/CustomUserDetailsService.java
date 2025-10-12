@@ -1,8 +1,7 @@
-package com.jwt.safe.security;
+package io.github.marinossake.security;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.jwt.safe.entity.User;
-import com.jwt.safe.repository.UserRepository;
+import io.github.marinossake.entity.User;
+import io.github.marinossake.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -14,21 +13,16 @@ import org.springframework.stereotype.Service;
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
-    private final Cache<String, UserDetails> userDetailsCache;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+
+        // Single DB hit; no eager relations expected (ensure LAZY on associations)
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
 
+        // Provide password hash + authorities for credential verification
         return CustomUserPrincipal.fromForLogin(user);
     }
 
-    public UserDetails loadUserByPublicId(String publicId) throws UsernameNotFoundException {
-        return userDetailsCache.get(publicId, id -> {
-            User user = userRepository.findByPublicId(id)
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found: " + id));
-            return CustomUserPrincipal.fromForJwt(user);
-        });
-    }
 }
