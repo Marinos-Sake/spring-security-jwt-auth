@@ -37,7 +37,7 @@ public class UserMapper {
 
     public void applyUserUpdate(UserUpdateDTO dto, User user, String encodedPasswordOrNull) {
         if (dto == null || user == null) return;
-        if (dto.getUsername() != null) user.setUsername(dto.getUsername()); // ήδη trimmed/validated από service
+        if (dto.getUsername() != null) user.setUsername(dto.getUsername());
         if (encodedPasswordOrNull != null) user.setPassword(encodedPasswordOrNull);
     }
 }
